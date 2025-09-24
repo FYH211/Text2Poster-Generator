@@ -29,19 +29,19 @@
 3.  [x] **编写 HTML (`template.html`)**: 创建基础的 HTML 结构，包含一个作为截图区域的根容器 (`#main-container`) 和一个用于动态填充文字的文本容器 (`#text-content`)。
 4.  [x] **编写 CSS (`style.css`)**: 基于分析结果，编写 CSS 样式，精确控制模板的视觉表现，特别是字体、颜色、间距和居中布局。
 
-### **第三阶段：核心脚本开发 (Phase 3: Core Script Development)**
+### **第三阶段：核心脚本开发 (Phase 3: Core Script Development) - 已完成**
 
-1.  **编写 Python 脚本 (`main.py`)**: 依据设计文档中的代码框架，开发完整的自动化脚本。
-2.  **实现核心功能**:
-    -   **主函数**: 设计一个 `main` 函数，接收一个文本列表作为输入。
-    -   **浏览器自动化**:
-        -   使用 `playwright` 库以无头模式启动 Chromium 浏览器。
-        -   在浏览器中打开本地的 `template.html` 文件。
-    -   **文本填充与截图**:
-        -   在循环中遍历文本列表。
-        -   对于每个文本，使用 `page.evaluate()` 或类似方法将其动态注入到 `#text-content` 元素中。
-        -   调用 `element.screenshot()` 方法，精确截取 `#main-container` 区域的图像。
-    -   **文件保存**: 将截图以唯一的、可读性强的名称（例如，基于文本内容生成）保存到 `output/` 文件夹中。
+1.  [x] **编写 Python 脚本 (`main.py`)**: 依据设计文档中的代码框架，开发完整的自动化脚本。
+2.  [x] **实现核心功能**:
+    -   [x] **主函数**: 设计一个 `main` 函数，接收一个文本列表作为输入。
+    -   [x] **浏览器自动化**:
+        -   [x] 使用 `playwright` 库以无头模式启动 Chromium 浏览器。
+        -   [x] 在浏览器中打开本地的 `template.html` 文件。
+    -   [x] **文本填充与截图**:
+        -   [x] 在循环中遍历文本列表。
+        -   [x] 对于每个文本，使用 `page.evaluate()` 或类似方法将其动态注入到 `#text-content` 元素中。
+        -   [x] 调用 `element.screenshot()` 方法，精确截取 `#main-container` 区域的图像。
+    -   [x] **文件保存**: 将截图以唯一的、可读性强的名称（例如，基于文本内容生成）保存到 `output/` 文件夹中。
 
 ### **第四阶段：测试、迭代与优化 (Phase 4: Testing, Iteration & Optimization)**
 
