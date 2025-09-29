@@ -1,0 +1,109 @@
+/* 导入具有多种字重的合适字体 */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
+
+body {
+    margin: 0;
+    padding: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f0f0f0; /* 中性背景，用于查看海报 */
+    font-family: 'Noto Sans SC', sans-serif;
+    box-sizing: border-box;
+}
+
+#display-wrapper {
+    width: 1080px;
+    height: 1440px; /* 3:4 宽高比 */
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+#poster {
+    width: 100%;
+    height: 100%;
+    padding: 80px;
+    box-sizing: border-box;
+    /* 正确：渐变在海报上，而不是在 body 上。它在白色处停止。 */
+    background: linear-gradient(to bottom, #88c8c0, #e06a80 35%, #FAF9F5 35%); /* 优化主页渐变背景，白色区域改为柔和米白色 */
+}
+
+.image-placeholder {
+    width: 300px;
+    height: 300px;
+    border-radius: 25px;
+    margin-top: 180px; /* 根据用户要求下移 */
+    margin-bottom: 20px; /* 微调 */
+    /* --- CSS 裁剪技术 --- */
+    background: linear-gradient(to top, #e06a80, transparent 35%), url('Reference-style/img.png'); /* 图像底部添加渐变效果 */
+    background-repeat: no-repeat;
+    /* 使用 'cover' 确保占位符完全填充，并使用 'center' 定位 */
+    background-size: cover;
+    background-position: center;
+}
+
+
+.title-container {
+    /* 图像在流中，不再需要 margin-top */
+    font-size: 76px;
+    font-weight: 900;
+    color: #333;
+    line-height: 1.4;
+    margin-bottom: 20px; /* 微调 */
+}
+
+.comment-container {
+    font-size: 28px;
+    color: #aaa;
+    margin-bottom: 50px;
+    display: flex;
+    align-items: center;
+}
+
+.comment-container span {
+    margin-right: 12px;
+    font-size: 32px;
+}
+
+#text-container {
+    font-size: 42px; /* 增加字体大小 */
+    line-height: 1.8;
+    color: #555;
+    text-align: left;
+    /* 为封面页的文本区域定义一个特定高度 */
+    max-height: 750px; /* 减小最大高度以增加底部留白 */
+    overflow: hidden;
+    margin-bottom: 80px; /* 添加底部外边距以保持一致的留白 */
+}
+
+#text-container p {
+    margin-bottom: 0.5em; /* 段落间距 */
+}
+
+#text-container p:last-child {
+    margin-bottom: 0; /* 最后一个段落下方没有间距 */
+}
+
+/* --- 封面与内容页的布局类 --- */
+
+/* 封面页布局 */
+.poster-cover {
+    /* 渐变在 #poster 中定义 */
+}
+
+/* 内容页布局 */
+#poster.poster-content {
+    background: #FAF9F5; /* 修正：使用更高优先级的选择器来覆盖默认渐变 */
+}
+
+#poster.poster-content .image-placeholder,
+#poster.poster-content .title-container,
+#poster.poster-content .comment-container {
+    display: none; /* 隐藏头部元素 */
+}
+
+#poster.poster-content #text-container {
+    max-height: 1600px; /* 内容页有更多空间用于文本 */
+}

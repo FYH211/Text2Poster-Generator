@@ -34,18 +34,12 @@
 - `Reference-style\2.jpg` 
 - `Reference-style\3.jpg`
 
-#### 🎨 字体排版参考（可优化）
-
-| 元素 | 规格 |
-|------|------|
-| **字体** | • 主标题（如果有）和主要文字采用相同的字体，字体风格偏向于圆润、可爱<br>• 字号大小适中，能够清晰阅读<br>• 字色: 主要为黑色或深灰色，与背景形成清晰对比 |
-| **间距** | • 文字区域与图片上下边界保持足够的留白<br>• 多行文字之间的行间距能够保持文字不拥挤 |
 
 ## 🚀 2. 任务拆解与技术选型
 
 ### 📝 2.1 任务拆解
 
-本项目可以分解为以下几个主要步骤，每个步骤都将由 Gemini CLI 辅助完成：
+本项目可以分解为以下几个主要步骤
 
 #### 🔧 环境准备
 - ✅ 初始化 Git 仓库
@@ -64,7 +58,7 @@
 ##### 🌐 浏览器操作函数
 - 🚀 启动 Playwright MCP 浏览器实例
 - 📂 打开网页模板文件
-- ✏️ 使用 Playwright 的 `page.fill()` 或 `page.evaluate()` 方法将文本填充到指定元素
+- ✏️ 使用 Playwright 将文本填充到指定元素
 - 📸 截取网页区域
 - 💾 保存图片
 - 🔒 关闭浏览器实例
@@ -94,116 +88,13 @@
 | **版本控制** | 📝 Git |
 | **开发与执行环境** | 🤖 Gemini CLI |
 
-## 💻 3. 核心功能实现细节
-
-### 🎨 3.1 网页模板 (template.html)
-
-#### 📋 结构设计
-- 📄 一个简单的 HTML 文件，包含一个 div 容器，内部有用于显示文本的 div
-
-#### 🎨 样式规范
-- 🎯 使用 CSS 定义容器的尺寸、背景色、文字的字体、字号、颜色、行间距和对齐方式
-- 📍 `div#text-container`: 核心文本区域，使用 `position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);` 实现居中
-- 🔧 字体、字号、颜色等参数将根据参考图片进行精确调整
-
-### 🐍 3.2 自动化脚本 (main.py)
-
-```python
-import os
-from playwright.sync_api import sync_playwright
-
-def generate_image(text, page):
-    """
-    根据给定的文本在网页上生成一张图片。
-    """
-    # 找到网页中的文本容器并填充文本
-    page.evaluate("document.querySelector('#text-content').textContent = arguments[0]", text)
-    
-    # 截取指定区域
-    screenshot_path = f"output/{text.replace(' ', '_').replace('...', '')[:10]}.png"
-    # 获取要截图的元素
-    element = page.locator('#main-container') 
-    element.screenshot(path=screenshot_path)
-    
-    return screenshot_path
-
-def main(texts):
-    """
-    主函数，批量生成图片。
-    """
-    # 创建输出文件夹
-    if not os.path.exists("output"):
-        os.makedirs("output")
-        
-    with sync_playwright() as p:
-        # 使用 Chromium 浏览器
-        browser = p.chromium.launch()
-        page = browser.new_page()
-        
-        # 加载本地的网页模板文件
-        # 注意: 路径可能需要根据实际情况调整
-        page.goto(f"file://{os.path.abspath('template.html')}")
-        
-        print("开始生成图片...")
-        for text in texts:
-            print(f"正在生成: '{text}'...")
-            generate_image(text, page)
-            
-        browser.close()
-    
-    print("所有图片已生成完毕。")
-    print("文件已保存至 'output/' 文件夹。")
-
-if __name__ == "__main__":
-    # 示例文本列表
-    sample_texts = [
-        "今天很开心，明天会更好...",
-        "生活不易，但要保持微笑。",
-        "星光不问赶路人，时光不负有心人。"
-    ]
-    main(sample_texts)
-```
-### 🤖 3.3 Gemini CLI 协作流程
-
-整个开发过程将由 Gemini CLI 驱动，核心指令流如下：
-
-#### 🚀 初始化阶段
-```
-Gemini CLI, please initialize a new git repository for a project named 'Automated-Poster-Generator' and create a 'dev_log.md' file to document the development process.
-```
-
-#### 🎨 模板开发阶段
-```
-Gemini CLI, let's design the 'template.html' and 'style.css' files. Analyze the provided link (Reference-style文件夹下的三张图片) and summarize the key design elements like font, color, and layout. Then, write the initial HTML and CSS code based on your analysis.
-```
-
-#### 💻 脚本开发阶段
-```
-Gemini CLI, let's start coding the main script 'main.py' using Python. The script should use Playwright MCP to load the 'template.html' and dynamically replace the text. It should then take a screenshot of the main container and save it. Please write the initial code.
-```
-
-#### 🔄 迭代优化阶段
-```
-Gemini CLI, I have generated a sample image. Please compare it with the reference image. Analyze the differences in font size, line spacing, and padding. Provide me with suggestions to adjust the CSS in 'template.html' and explain the reasoning behind your suggestions. I will update the code and ask you to re-evaluate.
-```
-
-#### 📚 文档撰写阶段
-```
-Gemini CLI, please write the 'manual.md' file. The manual should clearly explain the project setup, required dependencies, and how to run the script. It should be easy for a new user to follow.
-
-Gemini CLI, please update the 'dev_log.md' with our recent discussions and code changes. Summarize the key problems we solved and the decisions we made.
-
-Gemini CLI, please write the 'experience.md' document, reflecting on the entire development process. Discuss the advantages and challenges of using Gemini CLI and Playwright MCP for this task.
-```
-
-## 📦 4. 交付物
+## 📦 3. 交付物
 
 | 类别 | 内容 | 状态 |
 |------|------|------|
 | **🔗 GitHub 仓库** | GitHub 仓库链接 | ⏳ 待定，开发完成后将在此处填充 |
-| **💻 代码文件** | • `main.py`<br>• `template.html`<br>• `style.css` | 📝 待开发 |
-| **📚 文档** | • `manual.md`<br>• `dev_log.md`<br>• `experience.md`<br>• `cc-runner.md` (可选) | 📝 待编写 |
-| **🖼️ 示例输出** | `output/` 文件夹（在仓库中可以作为示例存在，或在运行脚本后生成） | 📁 待生成 |
+| **📚 文档** | • `manual.md`<br>• `dev_log.md`<br>• `experience.md`<br>• `cc-runner.md` (可选) 
+| **🖼️ 示例输出** | `output/` 文件夹（在仓库中可以作为示例存在，或在运行脚本后生成） 
 
 ## ✅ 5. 验收标准
 
