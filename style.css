@@ -17,7 +17,7 @@ body {
     width: 1080px;
     height: 1440px; /* 3:4 宽高比 */
     box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-    border-radius: 20px;
+    border-radius: 0px; /* 改为方角，与截图保持一致 */
     overflow: hidden;
 }
 
@@ -68,30 +68,56 @@ body {
 }
 
 #text-container {
-    font-size: 42px; /* 增加字体大小 */
+    font-size: 42px; /* 用户喜欢的字体大小 */
     line-height: 1.8;
     color: #555;
     text-align: left;
-    /* 为封面页的文本区域定义一个特定高度 */
-    max-height: 750px; /* 减小最大高度以增加底部留白 */
+    margin-bottom: 0; /* 移除文本容器的底部边距，因为poster已经有80px内边距 */
+}
+
+/* 封面页的文本容器：使用max-height限制，配合overflow确保不超出 */
+#poster.poster-cover #text-container {
+    max-height: 900px; /* 封面页文本区域限制，确保能容纳第一个完整段落（约689px） */
     overflow: hidden;
-    margin-bottom: 80px; /* 添加底部外边距以保持一致的留白 */
 }
 
 #text-container p {
     margin-bottom: 0.5em; /* 段落间距 */
+    text-indent: 2em; /* 首行缩进2个字符 */
 }
 
-#text-container p:last-child {
-    margin-bottom: 0; /* 最后一个段落下方没有间距 */
+#text-container p:first-child {
+    margin-top: 0; /* 第一个段落顶部没有间距 */
+}
+
+#text-container p:last-child,
+#text-container p.list-item:last-child {
+    margin-bottom: 0 !important; /* 最后一个段落下方没有间距，包括列表项 */
+    padding-bottom: 0; /* 确保最后段落底部没有额外填充 */
+}
+
+/* --- 列表项样式 --- */
+#text-container p.list-item {
+    margin-bottom: 0.8em; /* 列表项之间间距稍大 */
+    padding-left: 1.1em; /* 左侧内边距，精确匹配"1. "的宽度 */
+    text-indent: -1.1em; /* 首行负缩进，实现悬挂效果，让第二行与"复"对齐 */
+    line-height: 1.8; /* 保持良好的行高 */
+}
+
+/* 列表项标题样式（数字后的标签，如"复杂性:"） */
+#text-container p.list-item .list-title {
+    font-weight: 700; /* 加粗 */
+}
+
+/* --- 关键词句高亮样式 --- */
+.highlight {
+    color: #e06a80; /* 参考样式图片中的红色 */
+    font-weight: 700; /* 加粗 */
 }
 
 /* --- 封面与内容页的布局类 --- */
 
-/* 封面页布局 */
-.poster-cover {
-    /* 渐变在 #poster 中定义 */
-}
+/* 封面页布局：渐变在 #poster 中定义 */
 
 /* 内容页布局 */
 #poster.poster-content {

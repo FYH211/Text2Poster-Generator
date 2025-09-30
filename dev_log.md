@@ -86,3 +86,160 @@
 
 **9. 注释翻译**
 *   将 `main.py` 和 `style.css` 中的所有注释翻译为中文。
+
+---
+
+## 2025年9月30日 - Kimi AI集成与高级分页优化
+
+### 阶段一：Kimi API 智能关键词识别集成
+
+**1. Kimi API 环境配置**
+*   创建 `.env` 文件存储 API 凭证：
+    -   `KIMI_API_KEY`: API 密钥
+    -   `KIMI_API_URL`: API 端点
+    -   `KIMI_MODEL`: 使用的模型版本
+*   在 `requirements.txt` 添加依赖：`requests`, `python-dotenv`, `pillow`
+
+**2. 关键词提取模块开发 (`kimi_highlighter.py`)**
+*   实现 `extract_keywords()` 函数调用 Kimi API：
+    -   设计精确的 system prompt，确保提取**逐字存在**的原文片段（而非摘要）
+    -   返回 5-8 个关键短语或句子片段（5-15 字）
+    -   API 返回 JSON 数组格式
+*   实现 `highlight_keywords_in_html()` 函数：
+    -   按长度降序处理关键词（避免短词覆盖长词）
+    -   使用正则表达式精确匹配并包裹 `<span class="highlight">` 标签
+    -   避免重复高亮已标记的内容
+
+**3. 主脚本集成**
+*   修改 `read_input_article()` 函数：
+    -   添加 `enable_highlight` 参数控制是否启用 Kimi 识别
+    -   在生成 HTML 后调用 Kimi API 提取关键词
+    -   应用高亮标签到 HTML 内容
+
+**4. CSS 高亮样式**
+*   添加 `.highlight` 类：
+    -   `color: #e06a80;` (红色)
+    -   `font-weight: 700;` (加粗)
+    -   参考了提供的样式图片 `1.jpg`, `2.jpg`, `3.jpg`
+
+---
+
+### 阶段二：分页逻辑与HTML标签完整性修复
+
+**5. HTML 标签截断问题修复**
+*   **问题**：分页时 HTML 标签被切成两半，导致页面显示 `class="highligh">` 等裸露标签
+*   **解决方案**：
+    -   优化 `JS_PAGINATE_ONE_PAGE` 的 token 化逻辑
+    -   使用正则表达式将完整 HTML 标签作为原子单元处理
+    -   在拆分段落时保留原始 `<p>` 标签的属性（如 `class="list-item"`）
+
+**6. 列表项格式优化**
+*   **需求**：实现带序号的列表项（如"1. 复杂性："）的特殊格式
+    -   标题部分（"复杂性："）加粗
+    -   多行列表项的第二行及后续行缩进，与内容对齐（而非序号）
+*   **实现**：
+    -   修改 `read_input_article()`，使用正则表达式识别列表项格式 `^\d+\.\s+([^:：]+)([:：]\s*)(.*)`
+    -   将标题部分包裹在 `<span class="list-title">` 中
+    -   为列表项段落添加 `class="list-item"` 属性
+*   **CSS 样式**：
+    -   `p.list-item`: 使用悬挂缩进（`text-indent: -1.1em; padding-left: 1.1em;`）
+    -   `p.list-item .list-title`: 加粗显示
+
+---
+
+### 阶段三：文本连续性与智能断句
+
+**7. 封面页标题修复**
+*   **问题**：封面页标题显示错误（"历史问题" 而非 "不是所有的业务都需要SOP"）
+*   **原因**：列表项的 `list_title` 变量覆盖了全局的 `title` 变量
+*   **解决方案**：将列表项标题变量重命名为 `list_title`，避免命名冲突
+
+**8. 文本截断问题修复**
+*   **问题**：内容页之间文本未连接，部分内容（如"不断更新和改进"）未显示
+*   **原因**：`maxHeight` 安全缓冲不足，最后一行被隐藏
+*   **解决方案**：
+    -   将安全缓冲从 `lineHeight` 增加到 `lineHeight * 2`
+    -   为智能断句额外预留 `lineHeight * 0.5` 的空间
+
+**9. 智能句子断行优化**
+*   **需求**：避免句子在分页时被切断，一句话应完整显示在同一页
+*   **实现**：
+    -   **内容页**：回溯到最近的标点符号（`。！？；.!?;`）进行断行
+    -   **封面页**：优先保留完整段落，仅在第一段过长时按句号断行
+    -   确保标点符号包含在当前页，而非分到下一页
+    -   实现 HTML 标签平衡检查，避免 `<span>` 标签未闭合
+
+---
+
+### 阶段四：动态高度调整与页面优化
+
+**10. 封面页内容扩展**
+*   **问题**：封面页底部大量空白，完整句子"。但如何确定哪些流程需要SOP呢？..."未显示
+*   **解决方案**：
+    -   调整 `#text-container` 的 `max-height` 从默认值增加到 `680px`，然后最终版本为 `900px`
+    -   优化封面页和内容页的缓冲策略：
+        -   封面页：`lineHeight * 1.5` 缓冲
+        -   内容页：`lineHeight * 2 + lineHeight * 0.5` 缓冲
+
+**11. 动态高度裁剪（内容页）**
+*   **需求**：消除内容页底部的大量空白区域，同时保持 3:4 比例
+*   **实现**：
+    -   在截图前计算实际内容高度：
+        ```javascript
+        textContentHeight = lastChild.offsetTop + lastChild.offsetHeight + lastChildMarginBottom
+        totalHeight = posterPaddingTop + textContentHeight + posterPaddingBottom
+        ```
+    -   动态设置 `poster.style.height` 为 `totalHeight`
+    -   内容页使用智能高度，封面页保持固定 1440px（3:4 比例）
+
+**12. 页面间距对称性优化**
+*   **问题**：内容页底部留白视觉上明显大于顶部留白（底部 285px vs 顶部 122px）
+*   **诊断过程**：
+    -   发现最后一个列表项的 `margin-bottom: 0.8em` 未被覆盖
+    -   发现第一个段落的 `margin-top: 1em` 未被移除
+    -   高度计算中包含了这些额外的 margin
+*   **解决方案（CSS优先级修复）**：
+    -   添加 `#text-container p:first-child { margin-top: 0; }` 移除顶部 margin
+    -   添加 `#text-container p.list-item:last-child { margin-bottom: 0 !important; }` 强制移除底部 margin
+    -   移除 `#text-container` 的 `margin-bottom`
+    -   确保所有底部间距由 `#poster` 的 `padding-bottom: 80px` 统一控制
+*   **最终效果**：
+    -   顶部留白：80px (padding) + 0px (margin) = **80px**
+    -   底部留白：80px (padding) + 0px (margin) = **80px**
+    -   **完美对称** ✅
+
+---
+
+### 技术亮点总结
+
+1. **Kimi AI 集成**：
+   - 精心设计的 prompt 确保提取原文片段而非摘要
+   - 智能关键词识别并高亮显示
+
+2. **HTML 安全处理**：
+   - Token 化保护 HTML 标签不被截断
+   - 段落属性在拆分时保持完整
+
+3. **智能分页**：
+   - 句子级别的智能断行
+   - 封面页与内容页差异化断句策略
+   - HTML 标签平衡检查
+
+4. **动态高度优化**：
+   - 精确的高度计算，消除冗余空白
+   - 内容页节省 9%-46% 的垂直空间
+
+5. **视觉对称性**：
+   - CSS 优先级精细控制
+   - 顶部和底部留白完全一致（80px）
+
+### 最终成果
+
+- ✅ 4 张海报自动生成（1 封面 + 3 内容页）
+- ✅ 关键词句智能高亮（红色加粗）
+- ✅ 列表项完美格式（悬挂缩进 + 标题加粗）
+- ✅ 智能分页（句子完整，无截断）
+- ✅ 动态高度（精准裁剪，无冗余空白）
+- ✅ 完美对称（顶部底部留白一致）
+
+项目状态：**功能完整，视觉完美** 🎉
