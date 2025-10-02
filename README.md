@@ -21,7 +21,7 @@ playwright install
 ```
 
 ### 配置环境
-配置kimi API，火山引擎免费额度使用https://www.volcengine.com/experience/ark?model=kimi-k2-250905（大模型主要用于智能识别关键词句突显和emoji，可以直接查看output文件夹示例图片）
+配置kimi API，火山引擎免费额度使用https://www.volcengine.com/experience/ark?model=kimi-k2-250905 （大模型主要用于智能识别关键词句突显和emoji，可以直接查看output文件夹示例图片）
 ```bash
 # 创建 .env 文件
 KIMI_API_KEY=your_kimi_api_key
