@@ -105,6 +105,109 @@ def extract_keywords(text):
         return []
 
 
+def auto_add_emoji(title, body_text):
+    """
+    使用 Kimi API 智能分析文本并自动添加合适的 Emoji
+    
+    Args:
+        title: 标题文本
+        body_text: 正文文本
+        
+    Returns:
+        tuple: (处理后的标题, 处理后的正文)
+    """
+    if not KIMI_API_KEY:
+        print("错误：未找到 KIMI_API_KEY 环境变量，跳过 Emoji 自动添加")
+        return title, body_text
+    
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {KIMI_API_KEY}"
+    }
+    
+    system_prompt = """你是一个小红书内容优化助手，专门为图文内容添加合适的 Emoji 表情。
+
+**任务**：
+1. 为标题添加 1-2 个最合适的 Emoji（放在标题开头）
+2. 为正文中的列表项（以"数字. "开头）添加合适的 Emoji（放在数字后面）
+3. 可选：在正文关键位置添加合适的 Emoji 增强表达
+
+**Emoji 选择原则**：
+- 符合内容主题和情感
+- 常用、易懂的 Emoji
+- 不要过度使用（标题1-2个，每个列表项1个）
+- 优先使用：💡🔥⚠️⭐🎯📚✅👍💯🎉❤️📝📊🎓💼📈💰🏆🔑😊🤔💪👋
+
+**返回格式**：
+必须返回严格的 JSON 格式：
+{
+    "title": "处理后的标题（带Emoji）",
+    "body": "处理后的正文（带Emoji）"
+}
+
+注意：
+- 保持原文的所有换行符和格式
+- 只添加 Emoji，不修改其他任何文字内容
+- 列表项格式："1. 🎯 列表标题: 内容..."
+"""
+    
+    payload = {
+        "model": KIMI_MODEL,
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": f"标题：{title}\n\n正文：\n{body_text}"}
+        ]
+    }
+    
+    try:
+        print("正在调用 Kimi API 智能添加 Emoji...")
+        response = requests.post(
+            KIMI_API_URL,
+            headers=headers,
+            json=payload,
+            timeout=30
+        )
+        response.raise_for_status()
+        
+        result = response.json()
+        
+        if 'choices' in result and len(result['choices']) > 0:
+            content = result['choices'][0]['message']['content'].strip()
+            print(f"API 返回内容长度: {len(content)} 字符")
+            
+            # 尝试解析为 JSON
+            try:
+                # 移除可能的 markdown 代码块标记
+                content = content.replace('```json', '').replace('```', '').strip()
+                emoji_result = json.loads(content)
+                
+                if isinstance(emoji_result, dict) and 'title' in emoji_result and 'body' in emoji_result:
+                    new_title = emoji_result['title']
+                    new_body = emoji_result['body']
+                    print(f"[OK] 成功添加 Emoji！")
+                    # 避免在控制台打印可能包含 emoji 的标题（Windows 编码问题）
+                    print(f"   标题已更新（包含 {len(new_title)} 个字符）")
+                    return new_title, new_body
+                else:
+                    print(f"警告：API 返回格式不正确")
+                    return title, body_text
+                    
+            except json.JSONDecodeError as e:
+                print(f"警告：无法解析 API 返回的 JSON: {e}")
+                print(f"原始内容: {content[:200]}...")
+                return title, body_text
+        else:
+            print("警告：API 返回格式异常")
+            return title, body_text
+            
+    except requests.exceptions.RequestException as e:
+        print(f"API 请求失败: {e}")
+        return title, body_text
+    except Exception as e:
+        print(f"自动添加 Emoji 时发生错误: {e}")
+        return title, body_text
+
+
 def highlight_keywords_in_html(html_text, keywords):
     """
     在 HTML 文本中标记关键词句

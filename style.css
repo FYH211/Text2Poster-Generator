@@ -1,5 +1,7 @@
 /* 导入具有多种字重的合适字体 */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
+/* 导入 Emoji 字体支持 */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap');
 
 body {
     margin: 0;
@@ -9,7 +11,8 @@ body {
     align-items: center;
     min-height: 100vh;
     background-color: #f0f0f0; /* 中性背景，用于查看海报 */
-    font-family: 'Noto Sans SC', sans-serif;
+    /* Emoji 字体支持：添加 Apple Color Emoji, Segoe UI Emoji 等系统emoji字体 */
+    font-family: 'Noto Sans SC', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
     box-sizing: border-box;
 }
 
@@ -48,10 +51,44 @@ body {
 .title-container {
     /* 图像在流中，不再需要 margin-top */
     font-size: 76px;
-    font-weight: 900;
+    font-weight: 700;  /* 增强字重，更醒目 */
     color: #333;
     line-height: 1.4;
-    margin-bottom: 20px; /* 微调 */
+    letter-spacing: 3px;
+    margin-bottom: 26px;
+    
+    /* Emoji 字体支持 */
+    font-family: 'Noto Sans SC', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+    
+    /* === 标题视觉效果增强 === */
+    /* 文字阴影：增加立体感和可读性 */
+    text-shadow: 
+        3px 3px 6px rgba(0, 0, 0, 0.15),      /* 主阴影 */
+        1px 1px 2px rgba(0, 0, 0, 0.1);       /* 细节阴影 */
+    
+    /* 可选：渐变文字效果（取消注释即可使用） */
+    /* 
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    */
+    
+    /* 可选：描边效果（适合浅色背景） */
+    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.5);
+}
+
+/* Emoji 样式优化 */
+.title-container .emoji,
+#text-container .emoji {
+    font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+    font-weight: normal;  /* Emoji 不需要粗体 */
+    letter-spacing: normal;  /* Emoji 不需要字间距 */
+    -webkit-text-stroke: 0;  /* Emoji 不需要描边 */
+    text-shadow: none;  /* Emoji 不需要阴影 */
+    vertical-align: middle;  /* 垂直居中对齐 */
+    display: inline-block;
+    line-height: 1;
 }
 
 .comment-container {
@@ -68,11 +105,14 @@ body {
 }
 
 #text-container {
-    font-size: 42px; /* 用户喜欢的字体大小 */
+    font-size: 38px; /* 用户喜欢的字体大小 */
     line-height: 1.8;
     color: #555;
     text-align: left;
     margin-bottom: 0; /* 移除文本容器的底部边距，因为poster已经有80px内边距 */
+    
+    /* Emoji 字体支持 */
+    font-family: 'Noto Sans SC', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
 }
 
 /* 封面页的文本容器：使用max-height限制，配合overflow确保不超出 */

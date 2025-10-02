@@ -2,7 +2,7 @@ import asyncio
 import os
 import re
 from playwright.async_api import async_playwright
-from kimi_highlighter import extract_keywords, highlight_keywords_in_html
+from kimi_highlighter import extract_keywords, highlight_keywords_in_html, auto_add_emoji
 
 # --- 新的、健壮的 JavaScript 分页逻辑 ---
 JS_PAGINATE_ONE_PAGE = """
@@ -272,12 +272,13 @@ JS_PAGINATE_ONE_PAGE = """
 }
 """
 
-def read_input_article(file_path, enable_highlight=True):
+def read_input_article(file_path, enable_highlight=True, enable_auto_emoji=False):
     """从输入文件读取标题和正文，并将正文转换为 HTML。
     
     Args:
         file_path: 输入文件路径
         enable_highlight: 是否启用关键词句高亮（默认为True）
+        enable_auto_emoji: 是否启用AI智能添加Emoji（默认为False）
         
     Returns:
         tuple: (title, body_html, raw_body_text)
@@ -290,6 +291,12 @@ def read_input_article(file_path, enable_highlight=True):
         return None, None, None
     title = lines[0].strip()
     body_raw = "".join(lines[1:]).strip()
+    
+    # === AI 智能添加 Emoji ===
+    if enable_auto_emoji:
+        print("\n=== [AI] 智能添加 Emoji ===")
+        title, body_raw = auto_add_emoji(title, body_raw)
+        print("=== Emoji 添加完成 ===\n")
 
     # 通过双换行符分割获取段落
     paragraphs = body_raw.split('\n\n')
@@ -332,7 +339,18 @@ def read_input_article(file_path, enable_highlight=True):
 
 async def main():
     """主函数，用于从输入文件生成海报。"""
-    title_text, body_html, raw_body = read_input_article("input.txt", enable_highlight=True)
+    # ========================================
+    # 配置选项
+    # ========================================
+    ENABLE_HIGHLIGHT = True      # 启用关键词高亮
+    ENABLE_AUTO_EMOJI = True     # 启用AI智能添加Emoji [NEW!]
+    # ========================================
+    
+    title_text, body_html, raw_body = read_input_article(
+        "input.txt", 
+        enable_highlight=ENABLE_HIGHLIGHT,
+        enable_auto_emoji=ENABLE_AUTO_EMOJI
+    )
     if not title_text and not body_html:
         print("信息: 'input.txt' 为空或未找到。不会生成海报。")
         return
@@ -421,7 +439,7 @@ async def main():
             return finalHeight;
         }''')
         
-        cover_path = os.path.join(output_dir, "article_01_cover.png")
+        cover_path = os.path.join(output_dir, "cover.png")
         await display_wrapper.screenshot(path=cover_path)
         print(f"  - 已保存: {cover_path} (智能高度: {cover_height}px，底部留白: 1.2行高+6px)")
         
@@ -480,7 +498,7 @@ async def main():
                 return finalHeight;
             }''')
 
-            content_path = os.path.join(output_dir, f"article_01_content_{page_count - 1:02d}.png")
+            content_path = os.path.join(output_dir, f"content_{page_count - 1:02d}.png")
             
             # 截取display-wrapper，添加截图选项以避免边框重影
             await display_wrapper.screenshot(path=content_path, animations='disabled', scale='css')
