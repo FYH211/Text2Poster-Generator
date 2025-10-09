@@ -83,10 +83,6 @@ Text2Poster-Generator/
 
 欢迎提交 Issue 和 Pull Request！
 
-## 📄 许可证
-
-MIT License - 详见 [LICENSE](LICENSE) 文件
-
 ---
 
 **⭐ 如果这个项目对你有帮助，欢迎 Star 支持！**
